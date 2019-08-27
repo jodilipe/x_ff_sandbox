@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<beregnLivrentePrognoseResponse>
+    <livrentePrognose>
+        <startAar>2040</startAar>
+        <startMaaned>2</startMaaned>
+        <reserveVedPensionsalder>2000000.0</reserveVedPensionsalder>
+    </livrentePrognose>
+    <cprNr>0102700001</cprNr>
+</beregnLivrentePrognoseResponse>
