@@ -13,7 +13,7 @@ import java.util.List;
 public class JaxbUtils {
 
 	public static void main( String[] args ) throws Exception {
-		modelToJaxbPojos( new File( "/Users/jon/festinafinance/git/secondary/ffapp/sdc-dk-shared/model/sdc-dk-letpension.types" ), "/Users/jon/festinafinance/eclipse/workspace/secondary/xml/src/generated/" );
+		modelToJaxbPojos( new File( "/Users/jon/festinafinance/git/secondary/ffapp/sdc-dk-shared/model/sdc-dk-letpension.types" ), "/Users/jon/festinafinance/eclipse/workspace/secondary/x_ff_sandbox/src/generated/" );
 		System.out.println( "Done" );
 	}
 
