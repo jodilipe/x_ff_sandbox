@@ -8,18 +8,18 @@ public class RisikoDaekning extends Daekning {
 	@XmlElement
 	public RisikoDaekningType risikoDaekningType;
 	@XmlElement
-	public DaekningRammeRisiko aendringDaekningRammeRisiko;
-	@XmlElement
 	public Boolean pantsat;
 	@XmlElement
 	public Double ydelse;
+	@XmlElement
+	public Boolean forbedretPrisgruppe;
+	@XmlElement
+	public Person forsikrede;
 	@XmlElementWrapper
 	@XmlElement( name = "prisPerYdelse" )
 	public List<PrisPerYdelse> prognosePriser;
 	@XmlElement
-	public Person forsikrede;
-	@XmlElement
-	public Boolean forbedretPrisgruppe;
+	public DaekningRammeRisiko aendringDaekningRammeRisiko;
 
 	public RisikoDaekning() {}
 }

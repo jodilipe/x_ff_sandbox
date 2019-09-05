@@ -6,8 +6,6 @@ import javax.xml.bind.annotation.*;
 public class PrivatIndbetalingsaftale extends Indbetalingsaftale {
 	@XmlElement
 	public PrisOpkraevningsfrekvens prisOpkraevningsfrekvens;
-	@XmlElement
-	public Betalingskonto betalingskonto;
 
 	public PrivatIndbetalingsaftale() {}
 }

@@ -12,8 +12,6 @@ public class Investeringsprofil {
 	public Boolean andelIHoejSkalAngives;
 	@XmlElement
 	public Boolean udbetalingssikringMulig;
-	@XmlElement
-	public Boolean defaultProfil;
 
 	public Investeringsprofil() {}
 }

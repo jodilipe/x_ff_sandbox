@@ -8,9 +8,9 @@ public class DaekningRammeRisiko extends DaekningRamme {
 	@XmlElement
 	public RisikoDaekningType risikoDaekningType;
 	@XmlElement
-	public Integer risikoophoerAlderIMdr;
-	@XmlElement
 	public Integer praemieophoerAlderIMdr;
+	@XmlElement
+	public Integer risikoophoerAlderIMdr;
 	@XmlElement
 	public Integer risikoophoerMedforsikretAlderIMdr;
 	@XmlElement

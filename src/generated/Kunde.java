@@ -13,23 +13,17 @@ public class Kunde extends Person {
 	@XmlElement( name = "betalingskonto" )
 	public List<Betalingskonto> nytegningBetalingskonti;
 	@XmlElementWrapper
-	@XmlElement( name = "risikoDaekning" )
-	public List<RisikoDaekning> eksisterendeRisikoDaekninger;
-	@XmlElementWrapper
-	@XmlElement( name = "pensionsordning" )
-	public List<Pensionsordning> eksisterendePensionsordninger;
-	@XmlElementWrapper
-	@XmlElement( name = "daekningRammeRisiko" )
-	public List<DaekningRammeRisiko> nytegningRisikoDaekningRammer;
-	@XmlElementWrapper
 	@XmlElement( name = "risikoMaksimalDaekning" )
 	public List<RisikoMaksimalDaekning> risikoMaksimalDaekningMuligheder;
 	@XmlElementWrapper
-	@XmlElement( name = "daekningRammeLivrente" )
-	public List<DaekningRammeLivrente> nytegningLivrenteRammer;
-	@XmlElementWrapper
-	@XmlElement( name = "livrente" )
-	public List<Livrente> eksisterendeLivrenter;
+	@XmlElement( name = "aftale" )
+	public List<Aftale> aftaler;
+	@XmlElementWrapper( name = "nytegningDaekningRammer" )
+	@XmlElements( {
+		@XmlElement( name="daekningRammeRisiko", type = DaekningRammeRisiko.class ),
+		@XmlElement( name="daekningRammeLivrente", type = DaekningRammeLivrente.class )
+	} )
+	public List<DaekningRamme> nytegningDaekningRammer;
 
 	public Kunde() {}
 }

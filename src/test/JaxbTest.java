@@ -6,10 +6,12 @@ import java.util.Arrays;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
+import generated.Aftale;
 import generated.BeregnLivrentePrognoseResponse;
 import generated.Betalingskilde;
 import generated.BetalingskildeType;
 import generated.Betalingskonto;
+import generated.DaekningId;
 import generated.DaekningRammeLivrente;
 import generated.DaekningRammeRisiko;
 import generated.Garanti;
@@ -33,7 +35,6 @@ import generated.RisikoDaekning;
 import generated.RisikoDaekningType;
 import generated.RisikoMaksimalDaekning;
 import generated.Skattekode;
-import generated.UdbyderId;
 import generated.Ydelse;
 import generated.YdelseFrekvens;
 
@@ -67,10 +68,10 @@ public class JaxbTest {
 	}
 
 	protected static void createHentEngagementResponse() throws Exception {
-		UdbyderId letpensionTaeId = new UdbyderId();
+		DaekningId letpensionTaeId = new DaekningId();
 		letpensionTaeId.navn = "letpensionId";
 		letpensionTaeId.id = "123456";
-		UdbyderId pfaTaeId = new UdbyderId();
+		DaekningId pfaTaeId = new DaekningId();
 		pfaTaeId.navn = "pfaId";
 		pfaTaeId.id = "654321";
 		RisikoDaekning tabAfErhvervsevne = createTabAfErhvervsevne( letpensionTaeId, pfaTaeId );
@@ -85,26 +86,42 @@ public class JaxbTest {
 		Ydelse ydelseNytegning482000 = createYdelse( 482000d, createPrisPerYdelse( 0, 19320d ), createPrisPerYdelse( 360, 24120d ), createPrisPerYdelse( 540, 26880d ) );
 		Ydelse ydelseNytegning542250 = createYdelse( 542250d, createPrisPerYdelse( 0, 21735d ), createPrisPerYdelse( 360, 27135d ), createPrisPerYdelse( 540, 30240d ) );
 
-		DaekningRammeRisiko daekningRammeNytegning = createDaekningRammeRisiko( ydelseNytegning60250, ydelseNytegning120500, ydelseNytegning180750, ydelseNytegning241000, ydelseNytegning301250, ydelseNytegning361500, ydelseNytegning421750, ydelseNytegning482000, ydelseNytegning542250 );
+		DaekningRammeRisiko daekningRammeRisikoNytegning = createDaekningRammeRisiko( ydelseNytegning60250, ydelseNytegning120500, ydelseNytegning180750, ydelseNytegning241000, ydelseNytegning301250, ydelseNytegning361500, ydelseNytegning421750, ydelseNytegning482000, ydelseNytegning542250 );
 
 		Kunde kunde = new Kunde();
 		kunde.navn = "Homer Simpson";
 		kunde.cprNr = "0102700001";
-		kunde.eksisterendeRisikoDaekninger = Arrays.asList( tabAfErhvervsevne );
-		kunde.nytegningRisikoDaekningRammer = Arrays.asList( daekningRammeNytegning );
+//		kunde.eksisterendeRisikoDaekninger = Arrays.asList( tabAfErhvervsevne );
+		kunde.nytegningDaekningRammer = Arrays.asList( daekningRammeRisikoNytegning );
 		kunde.samletMaksimalDaekningDoed = 1928000d;
 		kunde.samletMaksimalDaekningSygdom = 537750d;
-		kunde.eksisterendePensionsordninger = Arrays.asList( new Ratepension() );
+//		kunde.eksisterendePensionsordninger = Arrays.asList( new Ratepension() );
 		kunde.nytegningBetalingskonti = Arrays.asList( new Betalingskonto() );
 		kunde.risikoMaksimalDaekningMuligheder = Arrays.asList( createLetsikringRisikoMaksimalDaekning( RisikoDaekningType.doedsfaldsdaekningRate, 210511d ), createLetsikringRisikoMaksimalDaekning( RisikoDaekningType.doedsfaldsdaekningSum, 1928000d ) );
 
-		UdbyderId letpensionLivrenteId = new UdbyderId();
+		DaekningId letpensionLivrenteId = new DaekningId();
 		letpensionLivrenteId.navn = "letpensionId";
 		letpensionLivrenteId.id = "123456";
-		UdbyderId pfaLivrenteId = new UdbyderId();
+		DaekningId pfaLivrenteId = new DaekningId();
 		pfaLivrenteId.navn = "pfaId";
 		pfaLivrenteId.id = "654321";
-		kunde.eksisterendeLivrenter = Arrays.asList( createLivrente( letpensionLivrenteId, pfaLivrenteId ) );
+//		kunde.eksisterendeLivrenter = Arrays.asList( createLivrente( letpensionLivrenteId, pfaLivrenteId ) );
+		
+		PrivatIndbetalingsaftale privatIndbetalingsaftale = new PrivatIndbetalingsaftale();
+		privatIndbetalingsaftale.beloeb = 1000d;
+		privatIndbetalingsaftale.betalingskonto = new Betalingskonto();
+		privatIndbetalingsaftale.pensionsordning = null;
+		privatIndbetalingsaftale.prisOpkraevningsfrekvens = PrisOpkraevningsfrekvens.maanedlig;
+		privatIndbetalingsaftale.betalingSlutAlderIMdr = 1068;
+		privatIndbetalingsaftale.betalingStartAlderIMdr = 360;
+
+		Aftale aftale = new Aftale();
+		aftale.aftalenummer = "1234567890";
+		aftale.leverandoer = "Letpension";
+		aftale.daekninger = Arrays.asList( tabAfErhvervsevne,new Ratepension(),createLivrente( letpensionLivrenteId, pfaLivrenteId ) );
+		aftale.indbetalingsaftale = privatIndbetalingsaftale;
+		
+		kunde.aftaler = Arrays.asList( aftale );
 
 		HentEngagementResponse hentEngagementResponse = new HentEngagementResponse();
 		hentEngagementResponse.kunde = kunde;
@@ -132,17 +149,20 @@ public class JaxbTest {
 		return daekningRammeNytegning;
 	}
 
-	protected static Livrente createLivrente( UdbyderId... ids ) {
+	protected static Livrente createLivrente( DaekningId...ids ) {
 		ReservesikringRamme reservesikringRamme = new ReservesikringRamme();
 		reservesikringRamme.betalingskilder = Arrays.asList( createBetalingskilde( Skattekode.sk2, BetalingskildeType.bankkonto, BetalingskildeType.pensionSkat2 ), createBetalingskilde( Skattekode.sk5, BetalingskildeType.bankkonto ) );
 
 		DaekningRammeLivrente daekningRammeLivrente = new DaekningRammeLivrente();
 		daekningRammeLivrente.betalingskilder = Arrays.asList( createBetalingskilde( Skattekode.sk1, BetalingskildeType.bankkonto, BetalingskildeType.pensionSkat2 ) );
-		daekningRammeLivrente.investeringsprofiler = Arrays.asList(	createInvesteringsProfil( InvesteringsprofilType.A, "Meget lav andel af opsparing i Høj", true, true, false ),
-																																createInvesteringsProfil( InvesteringsprofilType.B, "Lav andel af opsparing i Høj", false, false, false ),
-																																createInvesteringsProfil( InvesteringsprofilType.C, "Mellem andel af opsparing i Høj", false, false, false ),
-																																createInvesteringsProfil( InvesteringsprofilType.D, "Høj andel af opsparing i Høj", false, false, false ),
-																																createInvesteringsProfil( InvesteringsprofilType.valgfri, "Valgfri investeringsfordeling", false, false, true ) );
+		Investeringsprofil defaultInvesteringsProfil = createInvesteringsProfil( InvesteringsprofilType.valgfri, "Valgfri investeringsfordeling", false, false );
+		daekningRammeLivrente.investeringsprofiler = Arrays.asList(	createInvesteringsProfil( InvesteringsprofilType.A, "Meget lav andel af opsparing i Høj", true, true ),
+																																createInvesteringsProfil( InvesteringsprofilType.B, "Lav andel af opsparing i Høj", false, false ),
+																																createInvesteringsProfil( InvesteringsprofilType.C, "Mellem andel af opsparing i Høj", false, false ),
+																																createInvesteringsProfil( InvesteringsprofilType.D, "Høj andel af opsparing i Høj", false, false ),
+																																defaultInvesteringsProfil );
+		daekningRammeLivrente.defaultInvesteringsprofil = defaultInvesteringsProfil;
+		
 		daekningRammeLivrente.kundekapitalMulig = true;
 		daekningRammeLivrente.medforsikretTyper = Arrays.asList( MedforsikretType.values() );
 		daekningRammeLivrente.reservesikringRamme = reservesikringRamme;
@@ -150,12 +170,6 @@ public class JaxbTest {
 		daekningRammeLivrente.udbetalingStartAlderIMdrMaksimum = 1062;
 		daekningRammeLivrente.udbetalingStartAlderIMdrMinimum = 768;
 		daekningRammeLivrente.reservesikringRamme = reservesikringRamme;
-
-		PrivatIndbetalingsaftale privatIndbetalingsaftale = new PrivatIndbetalingsaftale();
-		privatIndbetalingsaftale.beloeb = 1000d;
-		privatIndbetalingsaftale.betalingskonto = new Betalingskonto();
-		privatIndbetalingsaftale.pensionsordning = null;
-		privatIndbetalingsaftale.prisOpkraevningsfrekvens = PrisOpkraevningsfrekvens.maanedlig;
 
 		Garanti garanti = new Garanti();
 		garanti.antalAar = 8;
@@ -167,16 +181,11 @@ public class JaxbTest {
 		reservesikring.skattekode = Skattekode.sk2;
 
 		Livrente livrente = new Livrente();
-		livrente.udbyderIder = Arrays.asList( ids );
+		livrente.daekningIder = Arrays.asList( ids );
 		livrente.aendringDaekningRammeLivrente = daekningRammeLivrente;
-		livrente.privatIndbetalingsaftale = privatIndbetalingsaftale;
-		livrente.arbejdsgiverIndbetalingsaftale = null;
-		livrente.betalingskildeType = BetalingskildeType.bankkonto;
-		livrente.betalingSlutAlderIMdr = 1068;
-		livrente.betalingStartAlderIMdr = 360;
 		livrente.udbetalingStartAlderIMdr = 768;
 		livrente.garanti = garanti;
-		livrente.investeringsprofil = createInvesteringsProfil( InvesteringsprofilType.B, "Lav andel af opsparing i Høj", false, true, false );
+		livrente.investeringsprofil = createInvesteringsProfil( InvesteringsprofilType.B, "Lav andel af opsparing i Høj", false, true ); 
 		livrente.kundekapitalValgt = false;
 
 		Person medforsikret = new Person();
@@ -190,13 +199,12 @@ public class JaxbTest {
 		return livrente;
 	}
 
-	private static Investeringsprofil createInvesteringsProfil( InvesteringsprofilType investeringsprofilType, String beskrivelse, boolean andelIHoejSkalAngives, boolean udbetalingSikringMulig, boolean defaultProfil ) {
+	private static Investeringsprofil createInvesteringsProfil( InvesteringsprofilType investeringsprofilType, String beskrivelse, boolean andelIHoejSkalAngives, boolean udbetalingSikringMulig ) {
 		Investeringsprofil investeringsprofil = new Investeringsprofil();
 		investeringsprofil.investeringsprofilType = investeringsprofilType;
 		investeringsprofil.beskrivelse = beskrivelse;
 		investeringsprofil.andelIHoejSkalAngives = andelIHoejSkalAngives;
 		investeringsprofil.udbetalingssikringMulig = udbetalingSikringMulig;
-		investeringsprofil.defaultProfil = defaultProfil;
 		return investeringsprofil;
 	}
 
@@ -207,7 +215,7 @@ public class JaxbTest {
 		return letsikringRisikoMaksimalDaekning;
 	}
 
-	protected static RisikoDaekning createTabAfErhvervsevne( UdbyderId... ids ) {
+	protected static RisikoDaekning createTabAfErhvervsevne( DaekningId...ids ) {
 		Person forsikrede = new Person();
 		forsikrede.navn = "Homer Simpson";
 		forsikrede.cprNr = "0102700001";
@@ -230,7 +238,7 @@ public class JaxbTest {
 		daekningRammeAendring.ydelseReguleringsfaktorUdbetalingsperiode = 1.0;
 
 		RisikoDaekning tabAfErhvervsevne = new RisikoDaekning();
-		tabAfErhvervsevne.udbyderIder = Arrays.asList( ids );
+		tabAfErhvervsevne.daekningIder = Arrays.asList( ids );
 		tabAfErhvervsevne.aendringDaekningRammeRisiko = daekningRammeAendring;
 		tabAfErhvervsevne.forbedretPrisgruppe = false;
 		tabAfErhvervsevne.forsikrede = forsikrede;
@@ -241,7 +249,6 @@ public class JaxbTest {
 		tabAfErhvervsevne.prognosePriser = ydelseAendring180750.prognosepriser;
 		tabAfErhvervsevne.skattekode = Skattekode.sk1;
 		tabAfErhvervsevne.ydelse = 180750d;
-		tabAfErhvervsevne.betalingskildeType = BetalingskildeType.bankkonto;
 		return tabAfErhvervsevne;
 	}
 
