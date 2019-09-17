@@ -29,7 +29,7 @@ public class JaxbUtils {
 
 	public static void main( String[] args ) throws Exception {
 		modelToJaxbPojos( new File( "/Users/jon/festinafinance/git/secondary/ffapp/sdc-dk-shared/model/sdc-dk-letpension.types" ), "/Users/jon/festinafinance/eclipse/workspace/secondary/x_ff_sandbox/src/generated/" );
-		System.out.println( "Done" );
+//		System.out.println( "Done" );
 	}
 
 	public static void modelToJaxbPojos( File model, String savePath ) throws Exception {
@@ -37,6 +37,7 @@ public class JaxbUtils {
 		BufferedReader br = new BufferedReader( fis );
 
 		Map<String, List<String>> classNameToClassLines = new HashMap<String, List<String>>();
+		Map<String, List<String>> enumNameToEnumLines = new HashMap<String, List<String>>();
 
 		String line = br.readLine();
 		while ( line != null ) {
@@ -50,29 +51,36 @@ public class JaxbUtils {
 				lines.add( line );
 				classNameToClassLines.put( className, generateClass( lines, savePath ) );
 			} else if ( line.contains( "enum" ) ) {
+				String enumName = line.substring( line.indexOf( "enum" ) + "enum".length(), line.indexOf( "{" ) ).trim();
 				List<String> lines = new ArrayList<String>();
 				while ( line != null && !line.contains( "}" ) ) {
 					lines.add( line );
 					line = br.readLine();
 				}
 				lines.add( line );
-				generateEnum( lines, savePath );
+				enumNameToEnumLines.put( enumName, generateEnum( lines, savePath ) );
 			}
-			
+
 			line = br.readLine();
 		}
 
 		List<String> classNames = new ArrayList<String>( classNameToClassLines.keySet() );
 		Collections.sort( classNames );
 		for ( String className : classNames ) {
-			logClassDetails( classNameToClassLines.get( className ) );
+			logClassDetails( className, classNameToClassLines.get( className ) );
+		}
+
+		List<String> enumNames = new ArrayList<String>( enumNameToEnumLines.keySet() );
+		Collections.sort( enumNames );
+		for ( String enumName : enumNames ) {
+//			logEnumDetails( enumName, enumNameToEnumLines.get( enumName ) );
 		}
 
 		br.close();
 		fis.close();
 	}
 
-	private static void generateEnum( List<String> lines, String savePath ) throws Exception {
+	private static List<String> generateEnum( List<String> lines, String savePath ) throws Exception {
 		List<String> enumLines = new ArrayList<String>();
 
 		String firstLine = lines.get( 0 );
@@ -89,6 +97,7 @@ public class JaxbUtils {
 
 		String enumName = firstLine.substring( firstLine.indexOf( "enum" ) + "enum".length(), firstLine.indexOf( "{" ) ).trim();
 		writeToFile( enumLines, enumName, savePath, false );
+		return enumLines;
 		// System.out.println( "enum " + enumName );
 	}
 
@@ -145,21 +154,32 @@ public class JaxbUtils {
 
 		String footer = "}";
 		classLines.add( footer );
-//		logClassDetails( classLines );
+		// logClassDetails( classLines );
 		writeToFile( classLines, className, savePath, containsList || containsDate );
 		return classLines;
 		// System.out.println( "class " + className );
 	}
 
-	private static void logClassDetails( List<String> classLines ) {
-		System.out.println( classLines.get( 0 ).replace( "public", "" ).replace( "class", "" ).replace( "abstract", "" ).replace( "{", "" ).trim() + ";" );
+	private static void logClassDetails( String className, List<String> classLines ) {
+		System.out.println( className + ";" );
 		for ( int i = 1; i < classLines.size(); i++ ) {
 			String line = classLines.get( i );
 			if ( !line.contains( "@" ) && !line.contains( "}" ) && !line.trim().isEmpty() ) {
 				line = line.replace( "public", "" ).replace( ";", "" ).trim();
 				String type = line.substring( 0, line.indexOf( " " ) );
 				String name = line.substring( line.indexOf( " " ) );
-				System.out.println( name + ";" + type );
+				System.out.println( name.trim() + ";" + type.trim() );
+			}
+		}
+		System.out.println();
+	}
+
+	private static void logEnumDetails( String enumName, List<String> classLines ) {
+		System.out.println( enumName );
+		for ( int i = 1; i < classLines.size(); i++ ) {
+			String line = classLines.get( i );
+			if ( !line.contains( "@" ) && !line.contains( "}" ) && !line.trim().isEmpty() ) {
+				System.out.println( line.replace( ";", "" ).trim() );
 			}
 		}
 		System.out.println();
